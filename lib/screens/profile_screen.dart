@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'login_screen.dart';
+import 'settings_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -16,6 +17,17 @@ class ProfileScreen extends StatelessWidget {
         title: const Text('โปรไฟล์'),
         backgroundColor: Colors.grey.shade50,
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings_outlined),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SettingsScreen()),
+              );
+            },
+          ),
+        ],
       ),
       body: FutureBuilder<DocumentSnapshot>(
         future: FirebaseFirestore.instance
@@ -43,7 +55,6 @@ class ProfileScreen extends StatelessWidget {
             padding: const EdgeInsets.all(20),
             child: Column(
               children: [
-                // รูปประจำตัว + ชื่อ
                 Container(
                   width: 90,
                   height: 90,
@@ -67,9 +78,12 @@ class ProfileScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                   decoration: BoxDecoration(
-                    color: isStudent ? Colors.blue.shade50 : Colors.purple.shade50,
+                    color: isStudent
+                        ? Colors.blue.shade50
+                        : Colors.purple.shade50,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -82,18 +96,14 @@ class ProfileScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 24),
-
-                // ข้อมูลรายละเอียด
                 _infoCard([
-                  _infoRow(Icons.badge_outlined, isStudent ? 'รหัสนักเรียน' : 'รหัสครู', studentId),
+                  _infoRow(Icons.badge_outlined,
+                      isStudent ? 'รหัสนักเรียน' : 'รหัสครู', studentId),
                   if (isStudent && studentClass.isNotEmpty)
                     _infoRow(Icons.class_outlined, 'ชั้นเรียน', studentClass),
                   _infoRow(Icons.email_outlined, 'อีเมล', email),
                 ]),
-
                 const SizedBox(height: 24),
-
-                // ปุ่มออกจากระบบ
                 SizedBox(
                   width: double.infinity,
                   height: 48,
@@ -103,12 +113,14 @@ class ProfileScreen extends StatelessWidget {
                       if (context.mounted) {
                         Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(builder: (context) => const LoginScreen()),
+                          MaterialPageRoute(
+                              builder: (context) => const LoginScreen()),
                         );
                       }
                     },
                     icon: const Icon(Icons.logout, color: Colors.red),
-                    label: const Text('ออกจากระบบ', style: TextStyle(color: Colors.red)),
+                    label: const Text('ออกจากระบบ',
+                        style: TextStyle(color: Colors.red)),
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: Colors.red),
                       shape: RoundedRectangleBorder(
@@ -156,7 +168,8 @@ class ProfileScreen extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   value,
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                  style:
+                      const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                 ),
               ],
             ),

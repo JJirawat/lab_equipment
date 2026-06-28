@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'login_screen.dart';
 import 'equipment_list_screen.dart';
 import 'my_borrowed_screen.dart';
+import 'profile_screen.dart';
 
 class StudentDashboard extends StatefulWidget {
   const StudentDashboard({super.key});
@@ -55,7 +56,6 @@ class _StudentDashboardState extends State<StudentDashboard> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ส่วนหัว: ทักทาย + ปุ่มออกจากระบบ
               Row(
                 children: [
                   Expanded(
@@ -81,6 +81,16 @@ class _StudentDashboardState extends State<StudentDashboard> {
                     ),
                   ),
                   IconButton(
+                    icon: const Icon(Icons.person_outline),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const ProfileScreen()),
+                      );
+                    },
+                  ),
+                  IconButton(
                     icon: const Icon(Icons.logout),
                     onPressed: () async {
                       await FirebaseAuth.instance.signOut();
@@ -96,8 +106,6 @@ class _StudentDashboardState extends State<StudentDashboard> {
                 ],
               ),
               const SizedBox(height: 20),
-
-              // การ์ดสรุป
               StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance
                     .collection('borrow_requests')
@@ -186,8 +194,6 @@ class _StudentDashboardState extends State<StudentDashboard> {
                 },
               ),
               const SizedBox(height: 24),
-
-              // เมนูหลัก
               const Text(
                 'เมนูหลัก',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
@@ -231,14 +237,13 @@ class _StudentDashboardState extends State<StudentDashboard> {
                 ],
               ),
               const SizedBox(height: 24),
-
-              // อุปกรณ์แนะนำ (เลื่อนแนวนอน)
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
                     'อุปกรณ์ในห้องแล็บ',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style:
+                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   TextButton(
                     onPressed: () {
@@ -334,8 +339,6 @@ class _StudentDashboardState extends State<StudentDashboard> {
                 ),
               ),
               const SizedBox(height: 24),
-
-              // กิจกรรมล่าสุด (ประวัติยืม-คืน)
               const Text(
                 'กิจกรรมล่าสุด',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
@@ -485,7 +488,8 @@ class _StudentDashboardState extends State<StudentDashboard> {
             const Spacer(),
             Text(
               label,
-              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+              style:
+                  const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
             ),
           ],
         ),

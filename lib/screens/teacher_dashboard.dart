@@ -7,6 +7,7 @@ import 'add_equipment_screen.dart';
 import 'equipment_list_screen.dart';
 import 'notifications_screen.dart';
 import 'outstanding_borrows_screen.dart';
+import 'profile_screen.dart';
 
 class TeacherDashboard extends StatefulWidget {
   const TeacherDashboard({super.key});
@@ -28,8 +29,10 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
-    final userDoc =
-        await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+    final userDoc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .get();
 
     if (mounted) {
       setState(() {
@@ -53,7 +56,6 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ส่วนหัว: ทักทาย + กระดิ่ง + ออกจากระบบ
               Row(
                 children: [
                   Expanded(
@@ -77,6 +79,16 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
                         ),
                       ],
                     ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.person_outline),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const ProfileScreen()),
+                      );
+                    },
                   ),
                   StreamBuilder<QuerySnapshot>(
                     stream: FirebaseFirestore.instance
@@ -142,8 +154,6 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
                 ],
               ),
               const SizedBox(height: 20),
-
-              // การ์ดสรุปภาพรวมทั้งระบบ
               StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance
                     .collection('equipment')
@@ -164,7 +174,10 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        colors: [Colors.indigo.shade400, Colors.indigo.shade700],
+                        colors: [
+                          Colors.indigo.shade400,
+                          Colors.indigo.shade700
+                        ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
@@ -191,7 +204,8 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
                             ],
                           ),
                         ),
-                        Container(height: 50, width: 1, color: Colors.white24),
+                        Container(
+                            height: 50, width: 1, color: Colors.white24),
                         Expanded(
                           child: Padding(
                             padding: const EdgeInsets.only(left: 16),
@@ -200,7 +214,8 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
                               children: [
                                 const Text('กำลังถูกยืม',
                                     style: TextStyle(
-                                        color: Colors.white70, fontSize: 13)),
+                                        color: Colors.white70,
+                                        fontSize: 13)),
                                 const SizedBox(height: 4),
                                 Text(
                                   '$borrowedCount ชิ้น',
@@ -222,8 +237,6 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
                 },
               ),
               const SizedBox(height: 24),
-
-              // เมนูหลัก
               const Text(
                 'เมนูหลัก',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
@@ -272,7 +285,8 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const OutstandingBorrowsScreen(),
+                          builder: (context) =>
+                              const OutstandingBorrowsScreen(),
                         ),
                       );
                     },
@@ -293,8 +307,6 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
                 ],
               ),
               const SizedBox(height: 24),
-
-              // กิจกรรมล่าสุด (ทุกคน ทั้งยืมและคืน พร้อมชื่อนักเรียน)
               const Text(
                 'กิจกรรมล่าสุด',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
@@ -361,7 +373,8 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
                                 isReturned
                                     ? Icons.check_circle_outline
                                     : Icons.access_time,
-                                color: isReturned ? Colors.green : Colors.orange,
+                                color:
+                                    isReturned ? Colors.green : Colors.orange,
                                 size: 20,
                               ),
                             ),
@@ -371,7 +384,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    '$studentName',
+                                    studentName,
                                     style: const TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 13),
@@ -447,7 +460,8 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
             const Spacer(),
             Text(
               label,
-              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+              style:
+                  const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
             ),
           ],
         ),
