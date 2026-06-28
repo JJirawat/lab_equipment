@@ -40,7 +40,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
 
   String _formatDate(Timestamp? timestamp) {
     if (timestamp == null) return '-';
-    return DateFormat('d MMM yyyy').format(timestamp.toDate());
+    return DateFormat('d MMM yyyy, HH:mm').format(timestamp.toDate());
   }
 
   @override
@@ -384,6 +384,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
                       final status = data['status'] ?? '';
                       final isReturned = status == 'returned';
                       final createdAt = data['createdAt'] as Timestamp?;
+                      final returnedAt = data['returnedAt'] as Timestamp?;
 
                       return Container(
                         margin: const EdgeInsets.only(bottom: 10),
@@ -422,7 +423,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
                                   const SizedBox(height: 2),
                                   Text(
                                     isReturned
-                                        ? 'คืนแล้ว • ${_formatDate(createdAt)}'
+                                        ? 'คืนแล้ว • ${_formatDate(returnedAt)}'
                                         : 'กำลังยืม • ${_formatDate(createdAt)}',
                                     style: TextStyle(
                                       fontSize: 11,
