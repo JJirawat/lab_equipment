@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'borrow_screen.dart';
+import 'equipment_icons.dart';
 
 class EquipmentListScreen extends StatefulWidget {
-  final bool isTeacher; // true = ครู (ไม่มีปุ่มยืม), false = นักเรียน (มีปุ่มยืม)
+  final bool isTeacher;
 
   const EquipmentListScreen({super.key, this.isTeacher = false});
 
@@ -25,7 +26,6 @@ class _EquipmentListScreenState extends State<EquipmentListScreen> {
       ),
       body: Column(
         children: [
-          // ช่องค้นหา
           Padding(
             padding: const EdgeInsets.all(16),
             child: TextField(
@@ -44,8 +44,6 @@ class _EquipmentListScreenState extends State<EquipmentListScreen> {
               ),
             ),
           ),
-
-          // ตัวกรองหมวดหมู่
           SizedBox(
             height: 40,
             child: ListView(
@@ -71,8 +69,6 @@ class _EquipmentListScreenState extends State<EquipmentListScreen> {
             ),
           ),
           const SizedBox(height: 8),
-
-          // รายการอุปกรณ์แบบกริด (ดึงข้อมูล realtime จาก Firestore)
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
@@ -88,7 +84,6 @@ class _EquipmentListScreenState extends State<EquipmentListScreen> {
                   return const Center(child: Text('ยังไม่มีอุปกรณ์ในระบบ'));
                 }
 
-                // กรองข้อมูลตามหมวดหมู่และคำค้นหา
                 final items = snapshot.data!.docs.where((doc) {
                   final data = doc.data() as Map<String, dynamic>;
                   final name = (data['name'] ?? '').toString().toLowerCase();
@@ -108,7 +103,8 @@ class _EquipmentListScreenState extends State<EquipmentListScreen> {
 
                 return GridView.builder(
                   padding: const EdgeInsets.all(16),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  gridDelegate:
+                      const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     childAspectRatio: 0.85,
                     crossAxisSpacing: 12,
@@ -121,12 +117,8 @@ class _EquipmentListScreenState extends State<EquipmentListScreen> {
 
                     final name = data['name'] ?? '';
                     final availableQty = data['availableQty'] ?? 0;
-                    final category = data['category'] ?? '';
-
-                    // เลือกไอคอนตามหมวดหมู่
-                    IconData icon = Icons.science;
-                    if (category == 'แก้ว') icon = Icons.science_outlined;
-                    if (category == 'เครื่องมือ') icon = Icons.build_outlined;
+                    final icon = getEquipmentIcon(data['icon']);
+                    final iconColor = getEquipmentColor(data['colorIndex']);
 
                     return Container(
                       decoration: BoxDecoration(
@@ -144,17 +136,16 @@ class _EquipmentListScreenState extends State<EquipmentListScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // รูป/ไอคอนอุปกรณ์
                           Container(
                             height: 80,
                             width: double.infinity,
                             decoration: BoxDecoration(
-                              color: Colors.blue.shade50,
+                              color: iconColor.withOpacity(0.1),
                               borderRadius: const BorderRadius.vertical(
                                 top: Radius.circular(16),
                               ),
                             ),
-                            child: Icon(icon, size: 40, color: Colors.blue),
+                            child: Icon(icon, size: 40, color: iconColor),
                           ),
                           Padding(
                             padding: const EdgeInsets.all(10),
@@ -181,8 +172,6 @@ class _EquipmentListScreenState extends State<EquipmentListScreen> {
                                   ),
                                 ),
                                 const SizedBox(height: 8),
-
-                                // ปุ่มยืม แสดงเฉพาะนักเรียน และของต้องเหลืออยู่
                                 if (!widget.isTeacher)
                                   SizedBox(
                                     width: double.infinity,
@@ -211,9 +200,7 @@ class _EquipmentListScreenState extends State<EquipmentListScreen> {
                                         ),
                                       ),
                                       child: Text(
-                                        availableQty > 0
-                                            ? 'ยืม'
-                                            : 'ของไม่พอ',
+                                        availableQty > 0 ? 'ยืม' : 'ของไม่พอ',
                                         style: const TextStyle(
                                           fontSize: 12,
                                           color: Colors.white,

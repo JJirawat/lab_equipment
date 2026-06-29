@@ -6,6 +6,7 @@ import 'login_screen.dart';
 import 'equipment_list_screen.dart';
 import 'my_borrowed_screen.dart';
 import 'profile_screen.dart';
+import 'equipment_icons.dart';
 
 class StudentDashboard extends StatefulWidget {
   const StudentDashboard({super.key});
@@ -288,6 +289,9 @@ class _StudentDashboardState extends State<StudentDashboard> {
                             docs[index].data() as Map<String, dynamic>;
                         final name = data['name'] ?? '';
                         final availableQty = data['availableQty'] ?? 0;
+                        final icon = getEquipmentIcon(data['icon']);
+                        final iconColor =
+                            getEquipmentColor(data['colorIndex']);
 
                         return Container(
                           width: 130,
@@ -304,11 +308,11 @@ class _StudentDashboardState extends State<StudentDashboard> {
                               Container(
                                 padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
-                                  color: Colors.blue.shade50,
+                                  color: iconColor.withOpacity(0.1),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
-                                child: const Icon(Icons.science,
-                                    color: Colors.blue, size: 20),
+                                child:
+                                    Icon(icon, color: iconColor, size: 20),
                               ),
                               const SizedBox(height: 8),
                               Text(

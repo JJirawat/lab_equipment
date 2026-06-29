@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'equipment_icons.dart';
 
 class AddEquipmentScreen extends StatefulWidget {
   const AddEquipmentScreen({super.key});
@@ -13,14 +14,15 @@ class _AddEquipmentScreenState extends State<AddEquipmentScreen> {
   final _totalQtyController = TextEditingController();
   final _descriptionController = TextEditingController();
 
-  String _category = 'แก้ว'; // ค่าเริ่มต้น
-  bool _hasSizes = false; // toggle ว่ามีหลายขนาดไหม
+  String _category = 'แก้ว';
+  String _selectedIconKey = equipmentIconOptions.first.key;
+  int _selectedColorIndex = 0;
+  bool _hasSizes = false;
   bool _isLoading = false;
   String? _errorMessage;
 
   final List<String> _categories = ['แก้ว', 'เครื่องมือ', 'อื่นๆ'];
 
-  // ขนาดมาตรฐานให้เลือก (หน่วย ml)
   final List<String> _standardSizes = [
     '10 ml',
     '50 ml',
@@ -30,9 +32,7 @@ class _AddEquipmentScreenState extends State<AddEquipmentScreen> {
     '1000 ml',
   ];
 
-  // เก็บว่าขนาดไหนถูกติ๊กเลือกบ้าง (key = ขนาด, value = ติ๊กไหม)
   final Map<String, bool> _selectedSizes = {};
-  // เก็บ controller สำหรับกรอกจำนวนของแต่ละขนาด
   final Map<String, TextEditingController> _sizeQtyControllers = {};
 
   @override
@@ -61,7 +61,6 @@ class _AddEquipmentScreenState extends State<AddEquipmentScreen> {
     List<Map<String, dynamic>> sizesData = [];
 
     if (_hasSizes) {
-      // เก็บข้อมูลแต่ละขนาดที่ถูกติ๊กเลือก
       for (var size in _standardSizes) {
         if (_selectedSizes[size] == true) {
           final qtyText = _sizeQtyControllers[size]!.text.trim();
@@ -85,7 +84,6 @@ class _AddEquipmentScreenState extends State<AddEquipmentScreen> {
         return;
       }
     } else {
-      // ไม่มีขนาด ใช้จำนวนรวมที่กรอกตรงๆ
       final qty = int.tryParse(_totalQtyController.text.trim());
       if (qty == null || qty <= 0) {
         setState(() {
@@ -101,8 +99,10 @@ class _AddEquipmentScreenState extends State<AddEquipmentScreen> {
       await FirebaseFirestore.instance.collection('equipment').add({
         'name': _nameController.text.trim(),
         'category': _category,
+        'icon': _selectedIconKey,
+        'colorIndex': _selectedColorIndex,
         'hasSizes': _hasSizes,
-        'sizes': sizesData, // ถ้าไม่มีขนาด จะเป็นลิสต์ว่าง []
+        'sizes': sizesData,
         'totalQty': totalQty,
         'availableQty': totalQty,
         'description': _descriptionController.text.trim(),
@@ -159,6 +159,87 @@ class _AddEquipmentScreenState extends State<AddEquipmentScreen> {
             const SizedBox(height: 20),
 
             const Text(
+              'เลือกไอคอนอุปกรณ์',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              children: equipmentIconOptions.map((option) {
+                final isSelected = _selectedIconKey == option.key;
+                return GestureDetector(
+                  onTap: () => setState(() => _selectedIconKey = option.key),
+                  child: Container(
+                    width: 64,
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? equipmentColorOptions[_selectedColorIndex]
+                              .withOpacity(0.15)
+                          : Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isSelected
+                            ? equipmentColorOptions[_selectedColorIndex]
+                            : Colors.transparent,
+                        width: 2,
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        Icon(
+                          option.icon,
+                          color: isSelected
+                              ? equipmentColorOptions[_selectedColorIndex]
+                              : Colors.grey.shade600,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          option.label,
+                          style: const TextStyle(fontSize: 10),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 16),
+
+            const Text(
+              'เลือกสี',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 10,
+              children: List.generate(equipmentColorOptions.length, (index) {
+                final isSelected = _selectedColorIndex == index;
+                return GestureDetector(
+                  onTap: () => setState(() => _selectedColorIndex = index),
+                  child: Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: equipmentColorOptions[index],
+                      shape: BoxShape.circle,
+                      border: isSelected
+                          ? Border.all(color: Colors.black, width: 2)
+                          : null,
+                    ),
+                    child: isSelected
+                        ? const Icon(Icons.check,
+                            color: Colors.white, size: 18)
+                        : null,
+                  ),
+                );
+              }),
+            ),
+            const SizedBox(height: 20),
+
+            const Text(
               'หมวดหมู่',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
@@ -173,7 +254,8 @@ class _AddEquipmentScreenState extends State<AddEquipmentScreen> {
                       margin: const EdgeInsets.symmetric(horizontal: 4),
                       padding: const EdgeInsets.symmetric(vertical: 10),
                       decoration: BoxDecoration(
-                        color: isSelected ? Colors.blue : Colors.grey.shade100,
+                        color:
+                            isSelected ? Colors.blue : Colors.grey.shade100,
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
@@ -190,7 +272,6 @@ class _AddEquipmentScreenState extends State<AddEquipmentScreen> {
             ),
             const SizedBox(height: 20),
 
-            // ตัวเลือกเสริม: มีหลายขนาดไหม
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               decoration: BoxDecoration(
@@ -217,7 +298,6 @@ class _AddEquipmentScreenState extends State<AddEquipmentScreen> {
             ),
             const SizedBox(height: 12),
 
-            // ถ้าเปิด Switch -> แสดงลิสต์ขนาดให้ติ๊กเลือก
             if (_hasSizes) ...[
               const Text(
                 'เลือกขนาดที่มี และกรอกจำนวน',
@@ -274,7 +354,6 @@ class _AddEquipmentScreenState extends State<AddEquipmentScreen> {
               const SizedBox(height: 12),
             ],
 
-            // ถ้าไม่มีขนาด -> ใช้ช่องจำนวนรวมตรงๆ
             if (!_hasSizes) ...[
               const Text(
                 'จำนวนทั้งหมด (ชิ้น)',

@@ -8,6 +8,7 @@ import 'equipment_list_screen.dart';
 import 'notifications_screen.dart';
 import 'outstanding_borrows_screen.dart';
 import 'profile_screen.dart';
+import 'equipment_icons.dart';
 
 class TeacherDashboard extends StatefulWidget {
   const TeacherDashboard({super.key});
