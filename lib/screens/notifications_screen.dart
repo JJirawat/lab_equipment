@@ -46,6 +46,8 @@ class NotificationsScreen extends StatelessWidget {
               final size = data['size'];
               final quantity = data['quantity'] ?? 0;
               final createdAt = data['createdAt'] as Timestamp?;
+              final type = data['type'] ?? 'borrow';
+              final actionText = type == 'return' ? 'คืน' : 'ยืม';
 
               final sizeText = size != null ? ' ($size)' : '';
 
@@ -81,7 +83,7 @@ class NotificationsScreen extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              '$studentName ยืม $equipmentName$sizeText จำนวน $quantity ชิ้น',
+                              '$studentName $actionText $equipmentName$sizeText จำนวน $quantity ชิ้น',
                               style:
                                   const TextStyle(fontWeight: FontWeight.w600),
                             ),

@@ -27,6 +27,10 @@ class OutstandingBorrowsScreen extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
 
+          if (snapshot.hasError) {
+            return Center(child: Text('เกิดข้อผิดพลาด: ${snapshot.error}'));
+          }
+
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
             return const Center(
               child: Text('ไม่มีรายการที่ค้างยืมอยู่ 🎉'),
@@ -50,8 +54,8 @@ class OutstandingBorrowsScreen extends StatelessWidget {
               final borrowDate = data['borrowDate'] as Timestamp?;
               final returnDate = data['returnDate'] as Timestamp?;
 
-              final isOverdue = returnDate != null &&
-                  returnDate.toDate().isBefore(now);
+              final isOverdue =
+                  returnDate != null && returnDate.toDate().isBefore(now);
 
               return Container(
                 margin: const EdgeInsets.only(bottom: 12),
@@ -60,7 +64,9 @@ class OutstandingBorrowsScreen extends StatelessWidget {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
-                    color: isOverdue ? Colors.red.shade200 : Colors.grey.shade200,
+                    color: isOverdue
+                        ? Colors.red.shade200
+                        : Colors.grey.shade200,
                   ),
                   boxShadow: [
                     BoxShadow(
@@ -76,8 +82,9 @@ class OutstandingBorrowsScreen extends StatelessWidget {
                     Row(
                       children: [
                         CircleAvatar(
-                          backgroundColor:
-                              isOverdue ? Colors.red.shade50 : Colors.blue.shade50,
+                          backgroundColor: isOverdue
+                              ? Colors.red.shade50
+                              : Colors.blue.shade50,
                           child: Icon(
                             Icons.person,
                             color: isOverdue ? Colors.red : Colors.blue,
@@ -126,7 +133,8 @@ class OutstandingBorrowsScreen extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 12,
                         color: isOverdue ? Colors.red : Colors.grey.shade600,
-                        fontWeight: isOverdue ? FontWeight.w600 : FontWeight.normal,
+                        fontWeight:
+                            isOverdue ? FontWeight.w600 : FontWeight.normal,
                       ),
                     ),
                   ],

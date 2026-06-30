@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'borrow_screen.dart';
 import 'equipment_icons.dart';
+import 'edit_equipment_screen.dart';
 
 class EquipmentListScreen extends StatefulWidget {
   final bool isTeacher;
@@ -69,6 +70,18 @@ class _EquipmentListScreenState extends State<EquipmentListScreen> {
             ),
           ),
           const SizedBox(height: 8),
+          if (widget.isTeacher)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'แตะที่อุปกรณ์เพื่อแก้ไขหรือลบ',
+                  style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+                ),
+              ),
+            ),
+          const SizedBox(height: 8),
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
@@ -120,98 +133,141 @@ class _EquipmentListScreenState extends State<EquipmentListScreen> {
                     final icon = getEquipmentIcon(data['icon']);
                     final iconColor = getEquipmentColor(data['colorIndex']);
 
-                    return Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.grey.shade200),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.1),
-                            blurRadius: 6,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            height: 80,
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: iconColor.withOpacity(0.1),
-                              borderRadius: const BorderRadius.vertical(
-                                top: Radius.circular(16),
-                              ),
+                    return InkWell(
+                      borderRadius: BorderRadius.circular(16),
+                      onTap: widget.isTeacher
+                          ? () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => EditEquipmentScreen(
+                                    equipmentId: doc.id,
+                                    equipmentData: data,
+                                  ),
+                                ),
+                              );
+                            }
+                          : null,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: Colors.grey.shade200),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.1),
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
                             ),
-                            child: Icon(icon, size: 40, color: iconColor),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(10),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Stack(
                               children: [
-                                Text(
-                                  name,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
+                                Container(
+                                  height: 80,
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color: iconColor.withOpacity(0.1),
+                                    borderRadius: const BorderRadius.vertical(
+                                      top: Radius.circular(16),
+                                    ),
                                   ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
+                                  child: Icon(icon, size: 40, color: iconColor),
                                 ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  'คงเหลือ $availableQty ชิ้น',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: availableQty > 0
-                                        ? Colors.green
-                                        : Colors.red,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                if (!widget.isTeacher)
-                                  SizedBox(
-                                    width: double.infinity,
-                                    height: 32,
-                                    child: ElevatedButton(
-                                      onPressed: availableQty > 0
-                                          ? () {
-                                              Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      BorrowScreen(
-                                                    equipmentId: doc.id,
-                                                    equipmentData: data,
-                                                  ),
-                                                ),
-                                              );
-                                            }
-                                          : null,
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.blue,
-                                        padding: EdgeInsets.zero,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                        ),
+                                if (widget.isTeacher)
+                                  Positioned(
+                                    top: 6,
+                                    right: 6,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(4),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        shape: BoxShape.circle,
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.grey.withOpacity(0.3),
+                                            blurRadius: 4,
+                                          ),
+                                        ],
                                       ),
-                                      child: Text(
-                                        availableQty > 0 ? 'ยืม' : 'ของไม่พอ',
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.white,
-                                        ),
+                                      child: const Icon(
+                                        Icons.edit,
+                                        size: 14,
+                                        color: Colors.grey,
                                       ),
                                     ),
                                   ),
                               ],
                             ),
-                          ),
-                        ],
+                            Padding(
+                              padding: const EdgeInsets.all(10),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    name,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'คงเหลือ $availableQty ชิ้น',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: availableQty > 0
+                                          ? Colors.green
+                                          : Colors.red,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  if (!widget.isTeacher)
+                                    SizedBox(
+                                      width: double.infinity,
+                                      height: 32,
+                                      child: ElevatedButton(
+                                        onPressed: availableQty > 0
+                                            ? () {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        BorrowScreen(
+                                                      equipmentId: doc.id,
+                                                      equipmentData: data,
+                                                    ),
+                                                  ),
+                                                );
+                                              }
+                                            : null,
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.blue,
+                                          padding: EdgeInsets.zero,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                        ),
+                                        child: Text(
+                                          availableQty > 0 ? 'ยืม' : 'ของไม่พอ',
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     );
                   },

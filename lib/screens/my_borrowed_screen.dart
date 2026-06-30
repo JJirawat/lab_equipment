@@ -11,7 +11,7 @@ class MyBorrowedScreen extends StatefulWidget {
 }
 
 class _MyBorrowedScreenState extends State<MyBorrowedScreen> {
-  String? _processingId; // เก็บ id ที่กำลังกดคืนอยู่ (กันกดซ้ำ)
+  String? _processingId;
 
   String _formatDate(Timestamp? timestamp) {
     if (timestamp == null) return '-';
@@ -23,15 +23,19 @@ class _MyBorrowedScreenState extends State<MyBorrowedScreen> {
     String equipmentId,
     String? size,
     int quantity,
+    String studentName,
+    String equipmentName,
   ) async {
     setState(() => _processingId = borrowId);
 
     try {
       await FirebaseFirestore.instance.runTransaction((transaction) async {
-        final equipmentRef =
-            FirebaseFirestore.instance.collection('equipment').doc(equipmentId);
+        final equipmentRef = FirebaseFirestore.instance
+            .collection('equipment')
+            .doc(equipmentId);
         final equipmentSnapshot = await transaction.get(equipmentRef);
-        final equipmentData = equipmentSnapshot.data() as Map<String, dynamic>;
+        final equipmentData =
+            equipmentSnapshot.data() as Map<String, dynamic>;
 
         final hasSizes = equipmentData['hasSizes'] ?? false;
 
@@ -61,12 +65,24 @@ class _MyBorrowedScreenState extends State<MyBorrowedScreen> {
           });
         }
 
-        // อัปเดตสถานะการยืมเป็น "คืนแล้ว"
-        final borrowRef =
-            FirebaseFirestore.instance.collection('borrow_requests').doc(borrowId);
+        final borrowRef = FirebaseFirestore.instance
+            .collection('borrow_requests')
+            .doc(borrowId);
         transaction.update(borrowRef, {
           'status': 'returned',
           'returnedAt': FieldValue.serverTimestamp(),
+        });
+
+        final notificationRef =
+            FirebaseFirestore.instance.collection('notifications').doc();
+        transaction.set(notificationRef, {
+          'type': 'return',
+          'studentName': studentName,
+          'equipmentName': equipmentName,
+          'size': size,
+          'quantity': quantity,
+          'isRead': false,
+          'createdAt': FieldValue.serverTimestamp(),
         });
       });
 
@@ -126,6 +142,7 @@ class _MyBorrowedScreenState extends State<MyBorrowedScreen> {
               final data = doc.data() as Map<String, dynamic>;
 
               final equipmentName = data['equipmentName'] ?? '';
+              final studentName = data['studentName'] ?? '';
               final size = data['size'];
               final quantity = data['quantity'] ?? 0;
               final borrowDate = data['borrowDate'] as Timestamp?;
@@ -203,6 +220,8 @@ class _MyBorrowedScreenState extends State<MyBorrowedScreen> {
                                   data['equipmentId'],
                                   size,
                                   quantity,
+                                  studentName,
+                                  equipmentName,
                                 ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue,
